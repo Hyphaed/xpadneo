@@ -48,6 +48,13 @@ files in `/sys/module/hid_xpadneo/parameters`:
   - '1' mouse device will be absent
 - `debug_descriptor` (default 0)
   - Enable debug logging for HID descriptor parsing
+- `enable_hidraw` (default 1)
+  - Let's you suppress the `/dev/hidraw*` node for the device. On by default, matching
+    existing driver behavior; some software probing hidraw (e.g. SDL's HIDAPI backend)
+    will pick a generic mapping instead of xpadneo's, causing wrong buttons or dropped
+    input in games. Turn off if that happens and you don't need hidraw for anything else.
+  - '0' no hidraw node
+  - '1' hidraw node available, needed for `misc/examples/c_hidraw` and similar tools
 
 Some settings may need to be changed at loading time of the module, take a look at the following example to see how
 that works:

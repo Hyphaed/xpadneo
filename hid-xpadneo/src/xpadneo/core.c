@@ -35,6 +35,11 @@ MODULE_SOFTDEP("pre: uhid");
 
 static DEFINE_IDA(xpadneo_core_device_id_allocator);
 
+static bool param_enable_hidraw = true;
+module_param_named(enable_hidraw, param_enable_hidraw, bool, 0444);
+MODULE_PARM_DESC(enable_hidraw,
+		 "(bool) Expose a hidraw device. 0: no hidraw node, 1: allow hidraw node (default).");
+
 #ifndef USB_VENDOR_ID_MICROSOFT
 #define USB_VENDOR_ID_MICROSOFT 0x045e
 #endif
@@ -246,7 +251,12 @@ static int core_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		goto err_release_id;
 	}
 
-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+	hid_info(hdev, "hidraw %s (enable_hidraw=%d)\n",
+		 param_enable_hidraw ? "requested" : "suppressed", param_enable_hidraw);
+
+	ret = hid_hw_start(hdev, param_enable_hidraw
+			   ? HID_CONNECT_DEFAULT
+			   : HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDRAW);
 	if (ret) {
 		hid_err(hdev, "hw start failed\n");
 		goto err_release_id;
